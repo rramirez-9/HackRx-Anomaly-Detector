@@ -1,12 +1,3 @@
-"""Streamlit demonstration combining the local ECG and X-ray processors.
-
-Run from the PTB-XL dataset root (where ptbxl_database.csv is located):
-    streamlit run /absolute/path/to/outputs/app.py --theme.base=dark
-
-Keep app.py, ecg_processor.py, and xray_processor.py together. The processors
-save PNGs in the working directory; the app keeps a byte snapshot per session.
-"""
-
 from pathlib import Path
 from threading import Lock
 

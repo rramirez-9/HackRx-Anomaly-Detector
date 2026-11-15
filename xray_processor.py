@@ -1,17 +1,3 @@
-"""Compare the first NIH chest X-ray with CLAHE enhancement.
-
-Install in your active venv: pip install datasets scikit-image
-Also requires numpy and matplotlib (installed for the ECG processor).
-
-Uses the same repository's training list and first image archive directly,
-bypassing its legacy dataset script. HTTP range reads access one ZIP member
-without downloading the full archive. This needs a server/proxy that supports
-range requests. Some metadata and buffered bytes are also transferred.
-
-Data provider: NIH Clinical Center, https://nihcc.app.box.com/v/ChestXray-NIHCC
-Wang et al., ChestX-Ray8, CVPR 2017, https://doi.org/10.1109/CVPR.2017.369
-"""
-
 from pathlib import Path
 
 from datasets import load_dataset
