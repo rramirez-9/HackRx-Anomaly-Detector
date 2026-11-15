@@ -1,0 +1,8 @@
+streamlit>=1.49,<2
+numpy
+pandas
+scipy
+matplotlib
+wfdb
+datasets
+scikit-image

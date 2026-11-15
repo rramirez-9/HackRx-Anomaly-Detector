@@ -1,0 +1,6 @@
+venv/
+ptbxl_database.csv
+records100/
+*.png
+__pycache__/
+.DS_Store
