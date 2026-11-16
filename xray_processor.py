@@ -1,3 +1,15 @@
+"""Stream a selected chest X-ray and save its CLAHE comparison.
+
+Install: pip install datasets scikit-image numpy matplotlib
+Source: https://huggingface.co/datasets/keremberke/chest-xray-classification
+License: CC BY 4.0. Original dataset: Mohamed Traore / Roboflow,
+https://universe.roboflow.com/mohamed-traore-2ekkp/chest-x-rays-qjmia/dataset/2
+
+The Hub's data-only Parquet export of the full training split avoids executing
+this repository's legacy Python loading script. Streaming reads the requested
+row plus metadata/buffered data, without preparing the full dataset locally.
+"""
+
 from pathlib import Path
 
 from datasets import load_dataset
@@ -9,41 +21,40 @@ import numpy as np
 from skimage import exposure
 
 
-DATA_URL = (
-    "https://huggingface.co/datasets/alkzar90/"
-    "NIH-Chest-X-ray-dataset/resolve/main/data"
+DATASET_ID = "keremberke/chest-xray-classification"
+TRAIN_PARQUET_URL = (
+    f"https://huggingface.co/datasets/{DATASET_ID}/resolve/"
+    "refs%2Fconvert%2Fparquet/full/train/0000.parquet"
 )
+SAMPLE_INDICES = {
+    "Sample 1": 0,
+    "Sample 2": 15,
+    "Sample 3": 30,
+    "Sample 4": 45,
+    "Sample 5": 60,
+}
+
+
+def load_xray(sample_name="Sample 1"):
+    """Return the decoded image at a zero-based row in the full train split."""
+    if sample_name not in SAMPLE_INDICES:
+        raise ValueError(
+            f"Unknown sample {sample_name!r}; choose one of {list(SAMPLE_INDICES)}"
+        )
+    row_index = SAMPLE_INDICES[sample_name]
+    stream = load_dataset(
+        "parquet", data_files={"train": TRAIN_PARQUET_URL},
+        split="train", streaming=True,
+    )
+    example = next(iter(stream.skip(row_index).take(1)), None)
+    if example is None:
+        raise ValueError(f"Training row {row_index} is unavailable for {sample_name}")
+    return example["image"]
 
 
 def load_first_xray():
-    """Stream the first training-list image via a seekable remote ZIP member.
-
-    The first training-list entry is in images_001.zip. Selecting one explicit
-    member avoids scanning/decompressing the other images. The legacy loader's
-    archive iteration order may differ from this training-list order.
-    """
-    filenames = load_dataset(
-        "text", data_files={"train": f"{DATA_URL}/train_val_list.txt"},
-        split="train", streaming=True,
-    )
-    first = next(iter(filenames), None)
-    if first is None:
-        raise ValueError("The training image list is empty")
-    filename = first["text"].strip()
-    if not filename or Path(filename).name != filename:
-        raise ValueError(f"Unexpected training image filename: {filename!r}")
-
-    image_url = (
-        f"zip://images/{filename}::{DATA_URL}/images/images_001.zip"
-    )
-    subset = load_dataset(
-        "imagefolder", data_files={"train": image_url},
-        split="train", streaming=True,
-    )
-    example = next(iter(subset), None)
-    if example is None:
-        raise ValueError("The image stream is empty")
-    return example["image"]
+    """Backward-compatible helper returning Sample 1."""
+    return load_xray("Sample 1")
 
 
 def enhance_xray(image):
@@ -72,14 +83,14 @@ def save_comparison(original, enhanced, output_path="xray_analysis.png"):
     return output_path
 
 
-def process_xray():
-    """Stream one training image, enhance it, and save a PNG.
+def process_xray(sample_name="Sample 1"):
+    """Stream the selected training row, enhance it, and save a PNG.
 
     CLAHE changes local image contrast throughout the image; it does not
     segment the lungs or recover detail absent from the source resolution.
     Returns the absolute path to xray_analysis.png in the working directory.
     """
-    original, enhanced = enhance_xray(load_first_xray())
+    original, enhanced = enhance_xray(load_xray(sample_name))
     return save_comparison(original, enhanced)
 
 
