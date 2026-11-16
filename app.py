@@ -85,7 +85,7 @@ def generate_gemini_synthesis(api_key, age, sex, bmi, hr, sys_bp, dia_bp, o2, tr
 
 Do not just repeat the data. Perform a deep, cross-modal medical synthesis. Look for interactions (e.g., does the heart rate explain the lung fluid?). Provide your response strictly in this exact format:
 
-**RISK LEVEL:** [Choose Low, Moderate, High, or Critical] **CLINICAL IMPRESSION:** [1-2 sentences identifying the primary pathology by explicitly connecting the imaging findings to the vitals.] **CRITICAL CORRELATES:** [1 sentence explaining HOW the modalities interact, e.g., 'The hypoxia directly correlates with the bilateral pulmonary opacities.'] **IMMEDIATE ACTION:** [1 concrete next step for the physician, e.g., 'Stat Cardiology consult and consider Lasix.']"""
+**RISK LEVEL:** [Choose LOW, MODERATE, HIGH, or CRITICAL] **CLINICAL IMPRESSION:** [1-2 sentences identifying the primary pathology by explicitly connecting the imaging findings to the vitals.] **CRITICAL CORRELATES:** [1 sentence explaining HOW the modalities interact, e.g., 'The hypoxia directly correlates with the bilateral pulmonary opacities.'] **IMMEDIATE ACTION:** [1 concrete next step for the physician, e.g., 'Stat Cardiology consult and consider Lasix.']"""
         client = genai.Client(
             api_key=st.secrets.get("GEMINI_API_KEY"),
             http_options={"timeout": 45000, "retry_options": {"attempts": 1}},
