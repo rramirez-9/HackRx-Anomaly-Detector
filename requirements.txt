@@ -6,3 +6,4 @@ matplotlib
 wfdb
 datasets
 scikit-image
+google-genai
