@@ -4,3 +4,4 @@ records100/
 *.png
 __pycache__/
 .DS_Store
+.streamlit/secrets.toml
